@@ -23,7 +23,6 @@ import qualified SDL.Raw
 
 import qualified Graphics.Rendering.OpenGL.GL as GL
 import qualified Graphics.Rendering.OpenGL.GLU as GLU
-import qualified Graphics.GLUtil as GLUtil
 
 import Control.Wire hiding (unless)
 
@@ -131,8 +130,8 @@ actuateSDL (renderer, _) drawAction = do
   -- Swap buffers.
   SDL.present renderer
 
-data GLResources = GLResources { vertBuffObj :: GL.BufferObject
-                               , program :: GL.Program
+data GLResources = GLResources { vertBuffObj :: Maybe GL.BufferObject
+                               , program :: Maybe GL.Program
                                , sdlglContext :: SDL.GLContext
                                , sdlWindow :: SDL.Window
                                , keysRef :: IORef (Set Key)
@@ -152,17 +151,9 @@ initSDL_GL title width height = do
   GL.viewport $= (GL.Position 0 0, GL.Size (fromIntegral width) (fromIntegral height))
   liftIO $ GLU.ortho2D 0 (fromIntegral width) (fromIntegral height) 0
 
-  let vertexBufferData = [ 100, 100
-                         , 300, 100
-                         , 100, 300::GL.GLfloat ]
-  vbo <- liftIO $ GLUtil.makeBuffer GL.ArrayBuffer vertexBufferData
-  vs <- liftIO $ GLUtil.loadShader GL.VertexShader "hello-gl.vert"
-  fs <- liftIO $ GLUtil.loadShader GL.FragmentShader "hello-gl.frag"
-  p <- liftIO $ GLUtil.linkShaderProgram [vs, fs]
-
   kr <- liftIO $ newIORef (Set.empty)
-  return $ GLResources { vertBuffObj = vbo
-                       , program = p
+  return $ GLResources { vertBuffObj = Nothing
+                       , program = Nothing
                        , sdlglContext = context
                        , sdlWindow = window
                        , keysRef = kr
@@ -182,8 +173,8 @@ finishSDL_GL r = do
 senseSDL_GL :: (MonadIO m) => GLResources -> m (Set Key)
 senseSDL_GL r = senseSDL ((), keysRef r)
 
-actuateSDL_GL :: (MonadIO m) => Double -> Double -> GLResources -> GLRender m -> m ()
-actuateSDL_GL width height r drawAction = do
+actuateSDL_GL :: (MonadIO m) => GLResources -> GLRender m -> m ()
+actuateSDL_GL r drawAction = do
   -- Clear back buffer to black.
   liftIO $ GL.clearColor $= GL.Color4 0 0 0 1
   liftIO $ GL.clear [GL.ColorBuffer]

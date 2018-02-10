@@ -1,5 +1,5 @@
 name:                relativistic-asteroids
-version:             0.1.0.0
+version:             0.1.0.1
 github:              "ehofreiter/relativistic-asteroids"
 license:             BSD3
 author:              "Eric W. Hofreiter"
@@ -32,7 +32,6 @@ dependencies:
 - netwire >= 5.0.0 && < 6
 - sdl2 >= 2.1 && < 3
 - OpenGL
-- GLUtil
 - text
 
 library:

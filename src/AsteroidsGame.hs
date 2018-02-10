@@ -79,7 +79,7 @@ main_ :: IO ()
 main_ = run (initSDL_GL "Asteroids" width height)
             finishSDL_GL
             senseSDL_GL
-            (actuateSDL_GL (fromIntegral width) (fromIntegral height))
+            actuateSDL_GL
             game
 
 game :: (MonadRandom m, MonadIO m, MonadFix m, HasTime t s)
